@@ -25,7 +25,7 @@ classifiers = [
     "Topic :: Software Development :: Version Control :: Git",
     "Topic :: Utilities",
 ]
-dependencies = ["typer[sync]>=0.12"]
+dependencies = ["typer>=0.12"]
 
 [project.optional-dependencies]
 dev = [

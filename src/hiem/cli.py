@@ -104,6 +104,17 @@ def search(query: str) -> None:
     typer.run(["gh", "search", "repos", query])
 
 
+@app.command()
+def chat() -> None:
+    """Start interactive HIEM chat session.
+
+    Claude Code-style engineering agent for GitHub operations,
+    code editing, test running, and codebase exploration.
+    """
+    from .agent import chat as _chat
+    _chat()
+
+
 # ── sub-apps (lazy import avoids circular register timing) ───────────────────
 def _load(name: str) -> typer.Typer:
     """Lazy-load a sub-command module and return its ``app`` Typer instance."""

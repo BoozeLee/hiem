@@ -18,6 +18,7 @@ hiem <command>
 - A **local CLI tool** that makes GitHub operations reproducible, reviewable, and auditable.
 - Built on `gh auth` — reuses your existing `gh` session; **no extra tokens needed**.
 - Enforces **7 axioms** and **5-phase discipline** on every mutating operation.
+- **Interactive chat mode** — Claude Code-style engineering agent for code editing, test running, and GitHub operations.
 - Open source, part of the **Kilo Platform** (`kilocode.ai`).
 
 ## What HIEM is NOT
@@ -49,9 +50,6 @@ uv tool install hiem
 # Alternative — from source
 git clone https://github.com/BoozeLee/hiem
 cd hiem && uv pip install -e .
-
-# Alternative — npm
-npm install -g @hiem/cli
 ```
 
 ## Quickstart
@@ -63,8 +61,8 @@ hiem whoami
 # Print the engineering prompt (axioms + phases)
 hiem doc
 
-# Show local config
-hiem settings
+# Interactive chat mode (Claude Code-style)
+hiem chat
 
 # Manage PRs
 hiem pr list
@@ -94,6 +92,39 @@ hiem label list
 hiem branch clean
 ```
 
+## Interactive Chat Mode
+
+```bash
+hiem chat
+```
+
+Starts an interactive session where you can:
+- Ask natural language questions about your codebase
+- Request code edits with diff preview
+- Run tests and linting
+- Manage GitHub operations (PRs, issues, CI)
+- Get Claude Code-style guidance
+
+### Chat Commands
+
+| Command | Description |
+|---|---|
+| `/files [pattern]` | List files |
+| `/status` | Git status |
+| `/commits [n]` | Recent commits |
+| `/search <query>` | Search code |
+| `/read <file>` | Read file |
+| `/edit <file> <old>---<new>` | Apply edit with diff |
+| `/test [path]` | Run pytest |
+| `/lint` | Run ruff lint |
+| `/gh <args>` | Run gh command |
+| `/pr <num> [review|merge|close]` | PR operations |
+| `/issue <num> [triage]` | Issue operations |
+| `/ci [runs|rerun <id>|watch <id>]` | CI operations |
+| `/release create` | Create release |
+| `/context` | Show repo context |
+| `/help` | Show help |
+
 ## Command Reference
 
 | Command | Description |
@@ -101,6 +132,7 @@ hiem branch clean
 | `hiem whoami` | Show authenticated identity; never prints tokens |
 | `hiem doc` | Print the full HIEM engineering prompt |
 | `hiem settings` | Show local config; never prints secrets |
+| `hiem chat` | Start interactive HIEM chat session |
 | `hiem pr list` | List PRs with `--state`, `--limit`, `--json` |
 | `hiem pr review N` | Read-only structured PR review (no review posted) |
 | `hiem pr merge N` | Squash-merge after phase checks; `--force` override |
@@ -157,6 +189,12 @@ P5 📋  Report — result and next step
 hiem pr review 137
 hiem pr merge 137
 
+# Interactive code editing
+hiem chat
+> /read src/main.py
+> /edit src/main.py "def foo(): pass"---"def foo(): return True"
+> /test
+
 # Triage issue with dry-run
 hiem issue triage 55
 hiem issue triage 55 --apply  # actually applies suggested labels
@@ -179,6 +217,9 @@ hiem branch clean
 hiem/
 ├── src/hiem/
 │   ├── cli.py          # Typer app + subcommands
+│   ├── agent.py        # Interactive chat agent
+│   ├── fileops.py      # File read/edit operations
+│   ├── llm.py          # LLM integration (Claude)
 │   ├── runner.py       # Subprocess — gh
 │   ├── config.py       # Settings / env
 │   ├── redact.py       # Secret redaction
@@ -200,10 +241,10 @@ python -m build
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).  
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 HIEM follows its own axioms as the contribution guide.
 
 ## License
 
-MIT © Kiliaan Vanvoorden / BoozeLee.  
+MIT © Kiliaan Vanvoorden / BoozeLee.
 Part of the [Kilo Platform](https://kilocode.ai).
