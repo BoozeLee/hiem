@@ -46,26 +46,28 @@ def test_security_no_secrets_in_help_output() -> None:
 
 def test_no_real_token_in_source():
     """Scan source tree for real token values, excluding pattern-definition files."""
+    import pathlib
+
+    repo_root = pathlib.Path(__file__).parent.parent
     result = subprocess.run(
         [
             sys.executable, "-c",
             "import pathlib\n"
             "found = []\n"
-            "for f in sorted(pathlib.Path('src/hiem').rglob('*.py')):\n"
+            "root = pathlib.Path('{}')\n"
+            "for f in sorted(root.rglob('*.py')):\n"
             "    if f.name in {'runner.py', 'redact.py'}:\n"
             "        continue\n"
             "    text = f.read_text()\n"
             "    for pat in ['gho_','ghp_','ghs_','github_pat_','-----BEGIN']:\n"
             "        idx = text.find(pat)\n"
             "        if idx >= 0:\n"
-            "            # skip if the match is ONLY the bare pattern keyword\n"
             "            tail = text[idx+len(pat):]\n"
             "            more = tail[:10]\n"
             "            if any(c.isalnum() for c in more):\n"
             "                found.append(f'{f}:{pat}')\n"
-            "print('FOUND_SECRET' if found else 'NO_SECRETS')\n",
+            "print('FOUND_SECRET' if found else 'NO_SECRETS')\n".format(repo_root),
         ],
-        cwd="/home/kilisan/hiem",
         capture_output=True,
         text=True,
         timeout=30,
