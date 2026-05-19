@@ -101,7 +101,8 @@ def settings() -> None:
 @app.command()
 def search(query: str) -> None:
     """Search GitHub code, issues, PRs, or repos."""
-    typer.run(["gh", "search", "repos", query])
+    import subprocess
+    subprocess.run(["gh", "search", "repos", query])
 
 
 @app.command()

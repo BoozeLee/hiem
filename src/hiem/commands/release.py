@@ -29,7 +29,7 @@ def _detect_version() -> str:
 def notes() -> None:
     """Show last release notes. Does NOT create a release."""
     try:
-        result = gh(["gh", "release", "view", "--json", "body"])
+        result = gh(["release", "view", "--json", "body"])
         typer.echo(result.stdout)
     except SystemExit:
         typer.echo("No prior release found. Showing recent commits:")
@@ -68,7 +68,7 @@ def create(
     ]
     print_phases(f"release create {release_tag}", phases)
 
-    args = ["gh", "release", "create", release_tag]
+    args = ["release", "create", release_tag]
     if notes_file:
         args += ["--notes-file", notes_file]
     elif generate_notes:

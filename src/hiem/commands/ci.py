@@ -13,13 +13,13 @@ app = typer.Typer(help="CI / workflow operations.")
 @app.command()
 def runs(limit: int = typer.Option(30, "--limit", help="Max workflow runs to list")) -> None:
     """List recent GitHub Actions workflow runs."""
-    gh(["gh", "run", "list", "--limit", str(limit)])
+    gh(["run", "list", "--limit", str(limit)])
 
 
 @app.command()
 def watch(run_id: int = typer.Argument(..., help="Workflow run ID to watch in real time")) -> None:
     """Watch a running GitHub Actions workflow in real time."""
-    gh(["gh", "run", "watch", str(run_id)])
+    gh(["run", "watch", str(run_id)])
 
 
 @app.command()
@@ -39,4 +39,4 @@ def rerun(
         ("P5", f"Run {run_ref} rerun triggered"),
     ]
     print_phases(f"ci rerun {run_ref}", phases)
-    gh(["gh", "run", "rerun", run_ref])
+    gh(["run", "rerun", run_ref])

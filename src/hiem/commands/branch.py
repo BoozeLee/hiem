@@ -81,5 +81,5 @@ def branch_clean(
     if remote:
         phase_info("P3", "Deleting remote branches…")
         for branch in safe:
-            gh(["gh", "api", f"repos/:owner/:repo/git/refs/heads/{branch}", "-X", "DELETE"],
+            gh(["api", f"repos/:owner/:repo/git/refs/heads/{branch}", "-X", "DELETE"],
                check=False)

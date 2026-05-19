@@ -23,7 +23,7 @@ def run(
 
     Must print P1-P5 phases before dispatching.
     """
-    args = ["gh", "workflow", "run", workflow]
+    args = ["workflow", "run", workflow]
     if inputs:
         try:
             data = json.loads(inputs)

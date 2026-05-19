@@ -20,7 +20,7 @@ def list(
     json: bool = typer.Option(False, "--json", help="JSON output"),
 ) -> None:
     """List issues for the current repository."""
-    args = ["gh", "issue", "list"]
+    args = ["issue", "list"]
     if state:
         args += ["--state", state]
     if labels:
@@ -55,7 +55,7 @@ def triage(
     ]
     print_phases(f"issue triage {ref}", phases)
 
-    gh(["gh", "issue", "view", str(number), "--json", "title,body,labels,state,assignees"])
+    gh(["issue", "view", str(number), "--json", "title,body,labels,state,assignees"])
     print()
 
     if apply:

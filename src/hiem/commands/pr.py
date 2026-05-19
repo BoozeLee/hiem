@@ -22,7 +22,7 @@ def list(
     json: bool = typer.Option(False, "--json", help="JSON output"),
 ) -> None:
     """List pull requests for the current repository."""
-    args = ["gh", "pr", "list"]
+    args = ["pr", "list"]
     if state:
         args += ["--state", state]
     args += ["--limit", str(limit)]
@@ -48,7 +48,6 @@ def review(number: int) -> None:
 
     gh(
         [
-            "gh",
             "pr",
             "view",
             str(number),
@@ -58,10 +57,10 @@ def review(number: int) -> None:
     )
     print()
     phase_info("", "── Files changed ──")
-    gh(["gh", "pr", "diff", str(number)])
+    gh(["pr", "diff", str(number)])
     print()
     phase_info("", "── Checks ──")
-    gh(["gh", "pr", "checks", str(number)])
+    gh(["pr", "checks", str(number)])
     print()
     phase_info("P5", f"Review of {ref} complete. No review was posted.")
 
@@ -88,12 +87,12 @@ def merge(
     if not force:
         # Check status — gh pr checks returns 1 if not all passing
         try:
-            gh(["gh", "pr", "checks", str(number)], check=False)
+            gh(["pr", "checks", str(number)], check=False)
         except SystemExit:
             typer.echo("ERROR: Not all checks are passing. Use --force to override.", err=True)
             raise typer.Exit(code=1) from None
 
-    gh(["gh", "pr", "merge", str(number), "--squash", "--delete-branch"])
+    gh(["pr", "merge", str(number), "--squash", "--delete-branch"])
 
 
 @app.command()
@@ -114,4 +113,4 @@ def close(
         ("P5", f"{ref} closed"),
     ]
     print_phases(f"pr close {ref}", phases)
-    gh(["gh", "pr", "close", str(number), "--comment", close_reason])
+    gh(["pr", "close", str(number), "--comment", close_reason])
