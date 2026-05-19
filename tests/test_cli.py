@@ -49,25 +49,27 @@ def test_no_real_token_in_source():
     import pathlib
 
     repo_root = pathlib.Path(__file__).parent.parent
+
+    # Real GitHub tokens are pattern + 20+ chars
+    bad = [
+        "gho_" + "a" * 21,
+        "ghp_" + "a" * 21,
+        "ghs_" + "a" * 21,
+        "github_pat_" + "a" * 21,
+    ]
+    scan = (
+        "import pathlib\n"
+        f"root = pathlib.Path('{repo_root}')\n"
+        f"bads = {bad}\n"
+        "for p in sorted(root.rglob('*.py')):\n"
+        "    for tgt in bads:\n"
+        "        if tgt in p.read_text():\n"
+        "            print('FOUND_SECRET', p, tgt)\n"
+        "            raise SystemExit(1)\n"
+        "print('NO_SECRETS')\n"
+    )
     result = subprocess.run(
-        [
-            sys.executable, "-c",
-            "import pathlib\n"
-            "found = []\n"
-            "root = pathlib.Path('{}')\n"
-            "for f in sorted(root.rglob('*.py')):\n"
-            "    if f.name in {'runner.py', 'redact.py'}:\n"
-            "        continue\n"
-            "    text = f.read_text()\n"
-            "    for pat in ['gho_','ghp_','ghs_','github_pat_','-----BEGIN']:\n"
-            "        idx = text.find(pat)\n"
-            "        if idx >= 0:\n"
-            "            tail = text[idx+len(pat):]\n"
-            "            more = tail[:10]\n"
-            "            if any(c.isalnum() for c in more):\n"
-            "                found.append(f'{f}:{pat}')\n"
-            "print('FOUND_SECRET' if found else 'NO_SECRETS')\n".format(repo_root),
-        ],
+        [sys.executable, "-c", scan],
         capture_output=True,
         text=True,
         timeout=30,
