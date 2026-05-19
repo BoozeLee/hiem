@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, 'finish-*']
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -20,13 +20,13 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dev dependencies
+      - name: Install package + dev dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install typer pytest pytest-mock ruff build
+          pip install -e ".[dev]" ruff build
 
       - name: Ruff lint
-        run: ruff check src/ tests/ || true
+        run: ruff check src/ tests/
 
       - name: Compileall
         run: python -m compileall src/ tests/
