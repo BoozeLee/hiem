@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.eggs/
+*.egg
+*.whl
+.tox/
+.pytest_cache/
+.ruff_cache/
+*.cover
+.coverage
+coverage.xml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+*.desktop.ini
+
+# Tokens / secrets
+.env
+.env.local
+*.pem
+secrets.json
+credentials.json
+token.json
+
+# Build artefacts
+*.tar.gz
+*.zip

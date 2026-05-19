@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'finish-*']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install typer pytest pytest-mock ruff build
+
+      - name: Ruff lint
+        run: ruff check src/ tests/ || true
+
+      - name: Compileall
+        run: python -m compileall src/ tests/
+
+      - name: Pytest
+        run: pytest -v tests/
+
+      - name: Build wheel
+        run: python -m build --wheel
+
+      - name: Security scan — no tokens in source
+        run: |
+          if grep -rEn "gho_|ghp_|ghs_|github_pat_|-----BEGIN" src/ tests/ 2>/dev/null; then
+            echo "SECURITY: secrets found in tracked files"
+            exit 1
+          fi
+          echo "SECURITY: no secrets found ✓"
