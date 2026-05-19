@@ -10,17 +10,17 @@ from hiem.runner import _redact, run
 
 
 def test_redact_gho_token():
-    text = "gho_hepw2dU8abcdef0123456789"
+    text = "gho_test12345678"
     assert _redact(text) == "***REDACTED***"
 
 
 def test_redact_ghp_token():
-    text = "ghp_a1b2c3d4e5f6g7h8i9j0klmnop"
+    text = "ghp_test12345678"
     assert _redact(text) == "***REDACTED***"
 
 
 def test_redact_github_pat_token():
-    text = "github_pat_abcdefghijklmnop1234567890"
+    text = "github_pat_test12345678"
     assert _redact(text) == "***REDACTED***"
 
 

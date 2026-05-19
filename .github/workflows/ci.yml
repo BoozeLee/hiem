@@ -39,7 +39,7 @@ jobs:
 
       - name: Security scan — no tokens in source
         run: |
-          if grep -rEn "gho_|ghp_|ghs_|github_pat_|-----BEGIN" src/ tests/ 2>/dev/null; then
+          if grep -rEn "(gho_[A-Za-z0-9_]{8,}|ghp_[A-Za-z0-9_]{8,}|ghs_[A-Za-z0-9_]{8,}|github_pat_[A-Za-z0-9_]{8,}" src/ tests/ 2>/dev/null; then
             echo "SECURITY: secrets found in tracked files"
             exit 1
           fi

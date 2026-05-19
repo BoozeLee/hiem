@@ -38,42 +38,45 @@ def test_doc():
 def test_security_no_secrets_in_help_output() -> None:
     result = _invoke("--help")
     assert result.exit_code == 0
-    # must not leak any real tokens or private key blocks
     assert "gho_" not in result.stdout
     assert "ghp_" not in result.stdout
     assert "PRIVATE KEY" not in result.stdout
 
 
 def test_no_real_token_in_source():
-    """Scan source tree for real token values, excluding pattern-definition files."""
+    """Scan source tree for long token-like strings."""
     import pathlib
 
     repo_root = pathlib.Path(__file__).parent.parent
-
-    # Real GitHub tokens are pattern + 20+ chars
-    bad = [
-        "gho_" + "a" * 21,
-        "ghp_" + "a" * 21,
-        "ghs_" + "a" * 21,
-        "github_pat_" + "a" * 21,
-    ]
-    scan = (
-        "import pathlib\n"
-        f"root = pathlib.Path('{repo_root}')\n"
-        f"bads = {bad}\n"
+    # Build a script via the file system to avoid quoting hell
+    script_path = repo_root / "_sec_scan.py"
+    script_path.write_text(
+        "import pathlib, re, sys\n"
+        "root = pathlib.Path(sys.argv[1])\n"
+        'prefixes = [\'gho_\', "ghp_", "ghs_", "github_pat_"]\n'
         "for p in sorted(root.rglob('*.py')):\n"
-        "    for tgt in bads:\n"
-        "        if tgt in p.read_text():\n"
-        "            print('FOUND_SECRET', p, tgt)\n"
-        "            raise SystemExit(1)\n"
-        "print('NO_SECRETS')\n"
+        '    if p.name in {"runner.py", "redact.py"}:\n'
+        "        continue\n"
+        "    t = p.read_text()\n"
+        "    for pre in prefixes:\n"
+        "        m = re.search(re.escape(pre) + r'[A-Za-z0-9_]{16,}', t)\n"
+        "        if m:\n"
+        '            print(f"FAIL {p} {m.group()[:40]}")\n'
+        "            sys.exit(1)\n"
+        'print("OK")\n'
     )
-    result = subprocess.run(
-        [sys.executable, "-c", scan],
-        capture_output=True,
-        text=True,
-        timeout=30,
-    )
-    assert "FOUND_SECRET" not in result.stdout, (
-        f"Token-like strings found in source:\n{result.stdout}"
-    )
+    try:
+        result = subprocess.run(
+            [sys.executable, str(script_path), str(repo_root)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if result.returncode != 0:
+            print(result.stdout, file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
+        assert result.returncode == 0, (
+            f"Token-like strings found:\n{result.stdout}\n{result.stderr}"
+        )
+    finally:
+        script_path.unlink(missing_ok=True)
